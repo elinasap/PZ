@@ -1,0 +1,251 @@
+#include <iostream>
+#include <string.h>
+#include <malloc.h>
+#include <typeinfo>
+#include <math.h>
+using namespace std;
+
+template <typename T>
+
+int Int(T);
+template<>
+int Int<int>(int p)
+{
+    return p;
+}
+
+
+template <class T>
+class Mas
+{
+private:
+    T* a;
+    int size;
+public:
+
+    Mas(T sizemas)
+    {
+        size = sizemas;
+        a = (int*)malloc(size * sizeof(int));
+        if (!a)
+        {
+            throw bad_alloc();
+        }
+    }
+
+    Mas(Mas& o)
+    {
+        a = new T[o.size];
+        if (!a)
+        {
+            throw bad_alloc();
+        }
+        size = o.size;
+        for (int i = 0; i < o.size; i++)
+        {
+            a[i] = o.a[i];
+        }
+    }
+    ~Mas()
+    {
+        free(a);
+    }
+    Mas& operator =(Mas& mas)
+    {
+        if (sizeof(a) >= sizeof(mas.a))
+        {
+            for (int i = 0; i < size; i++)
+            {
+                a[i] = mas.a[i];
+            }
+        }
+        else
+            throw bad_alloc("Выход за границы массива");
+    }
+    friend std::ostream& operator<<(std::ostream& out, Mas <T>& mas) 
+    {
+        out << "Перегрузка оператора вывода"<<endl;
+        for (int i = 0; i < mas.size; i++)
+        {
+            out << mas.a[i] << " ";
+        }
+        return out;
+    }
+    double distance (Mas& o)
+    {
+        if (typeid(o.a[0]) != typeid(int) or typeid(a[0]) != typeid(int))
+        {
+            throw error_l("Неверный тип данных");
+        }
+        double d = 0;
+        for (int i = 0; i < size; i++)
+        {
+            d = (a[i] - o.a[i]) * (a[i] - o.a[i]) + d;
+        }
+        return sqrt(d);
+    }
+};
+
+template <typename T>
+int Mas <T>::create()
+{
+    cout << "Введите " << size << " элементов массива: " << endl;
+    for (int i = 0; i < size; i++)
+    {
+        cout << "a[" << i << "] = ";
+        cin >> a[i];
+            if ((test(a[i]) == -1) ||(testtwo() == -1))
+            {
+                cout << "Oшибка ввода: выход за границы диапазона" << endl;
+                throw bad_value ("Неверное значение аргумента");
+            }
+    }
+    return 0;
+}
+
+
+template <typename T>
+int Mas<T>::push(int n)
+{
+        if ((test(n) == -1)||(testtwo()==-1))
+        {
+            cout << "Элемент a[" << size << "] выходит за диапазон значений" << endl;
+            throw bad_value("выход за границы диапазона");
+        }
+    size++;
+    a = (int*)realloc(a, size * sizeof(int)); //выделение памяти под новый элемент массив
+    a[size - 1] = n;
+    return size;
+}
+
+template <typename T>
+void Mas<T>::add(Mas& d)
+{
+    cout << "Сложение массивов" << endl;
+    for (int i = 0; i < size; i++)
+    {
+        a[i] = a[i] + d.a[i];
+        cout << a[i] << " ";
+    }
+    cout << endl;
+}
+
+template <typename T>
+void Mas<T>::sub(Mas& d)
+{
+    cout << "Вычитание массивов" << endl;
+    for (int i = 0; i < size; i++)
+    {
+        a[i] = 8 * a[i] - d.a[i];
+        cout << a[i] << " ";
+    }
+    cout << endl;
+}
+
+template <typename T>
+int Mas<T>::test(int c)
+{
+    if ((c > 100) || (c < -100))
+    {
+        return -1;
+    }
+    return 0;
+}
+
+template <typename T>
+int Mas<T>::testtwo()
+{
+    if (cin.fail()) 
+    {
+        cin.clear(); 
+        cin.ignore(32767, '\n'); 
+        return -1;
+    }
+    return 0;
+}
+
+template <typename T>
+void Mas<T>::output()
+{
+    for (int i = 0; i < size; i++)
+    {
+        cout << a[i] << " ";
+    }
+    cout << endl;
+}
+
+
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+    int sizemas;
+    int n;
+    cout << "Введите размер массива: ";
+    cin >> sizemas;
+    try
+    {
+        if (sizemas < 0)
+        {
+            throw out("размер массива не может быть меньше 0");
+        }
+    }
+    catch (out exception)
+    {
+        cout << "Исключение " << exception.what() << endl;
+        exit(-1);
+    }
+    Mas <int> mas(sizemas);
+    try 
+    {
+        mas.create();
+    }
+    catch (bad_value exception)
+    {
+        cout << "Исключение " << exception.what() << endl;
+        exit(-1);
+    }
+    mas.output();
+    cout << "Введите новый элемент: ";
+    cin >> n;
+    try
+    {
+        sizemas = mas.push(n);
+    }
+    catch (bad_value exception)
+    {
+        cout << "Исключение " << exception.what() << endl;
+        exit(-1);
+    }
+    cout << "Массив с добавленным элементом" << endl;
+    mas.output();
+    cout << endl;
+    try
+    {
+        Mas <int> nmas = mas;
+    }
+    catch (bad_alloc exception)
+    {
+        cout << "Исключение " << exception.what() << endl;
+        exit(-1);
+    }
+    Mas <int> nmas = mas;
+    cout << "Скопированный массив" << endl;
+    nmas.output();
+    mas.add(nmas);
+    mas.sub(nmas);
+    cout << nmas;
+    double d;
+    try
+    {
+        d = mas.distance(nmas);
+    }
+    catch (error_l exception)
+    {
+        cout << "Исключение " << exception.what() << endl;
+        exit(-1);
+    }
+    d = mas.distance(nmas);
+    cout << "\nРасстояние между массивами: " << d;
+    return 0;
+}
