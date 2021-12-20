@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <map>
 #include <fstream>
 
@@ -41,7 +41,7 @@ void showMap(map <string, int> data)
     map <string, int> ::iterator it = data.begin();
     for (int i = 0; it != data.end(); it++, i++)
     {
-        cout << "The string: " << it->first << " occurs " << it->second << " times�" << endl;
+        cout << "The string: " << it->first << " occurs " << it->second << " times·" << endl;
     }
 
 }
